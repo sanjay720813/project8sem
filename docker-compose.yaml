@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  # MySQL Database
+  mysql-db:
+    image: mysql:5.7
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: bbdms
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./bbdms.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bbdms_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql-db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "8081:80"
+    networks:
+      - bbdms_network
+
+  # PHP-Apache Web Server
+  php-apache:
+    build: .
+    container_name: php-apache
+    restart: always
+    volumes:
+      - ./bbdms:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - bbdms_network
+    depends_on:
+      - mysql-db
+
+networks:
+  bbdms_network:
+
+volumes:
+  mysql_data:
+
