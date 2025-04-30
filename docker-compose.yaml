@@ -1,6 +1,23 @@
 version: "3.8"
 
 services:
+
+  php-app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: mysql-db         # ✅ Updated from 'mysql' to 'mysql-db'
+      DB_USER: myuser           # ✅ Match MySQL credentials
+      DB_PASS: mypassword       # ✅ Match MySQL credentials
+      DB_NAME: bbdms
+    networks:
+      - bbdms_network
+    depends_on:
+      - mysql-db
+
   # MySQL Database
   mysql-db:
     image: mysql:5.7
@@ -40,23 +57,8 @@ services:
     networks:
       - bbdms_network
 
-  # PHP-Apache Web Server
-  php-apache:
-    build: .
-    container_name: php-apache
-    restart: always
-    volumes:
-      - ./bbdms:/var/www/html
-    ports:
-      - "8080:80"
-    networks:
-      - bbdms_network
-    depends_on:
-      - mysql-db
-
 networks:
   bbdms_network:
 
 volumes:
   mysql_data:
-
