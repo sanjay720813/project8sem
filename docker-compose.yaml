@@ -17,12 +17,13 @@ services:
       - bbdms_network
     depends_on:
       - mysql-db
+    restart: always            # ✅ Ensure the container always restarts
 
   # MySQL Database
   mysql-db:
     image: mysql:5.7
     container_name: mysql-db
-    restart: always
+    restart: always            # ✅ Ensure the container always restarts
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: bbdms
@@ -44,7 +45,7 @@ services:
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin
-    restart: always
+    restart: always            # ✅ Ensure the container always restarts
     depends_on:
       mysql-db:
         condition: service_healthy
